@@ -5,8 +5,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from tools.read import run
-
 MODEL = "nvidia/nemotron-3.5-lightning:free"
 BASE_URL = "https://openrouter.ai/api/v1"
 
@@ -14,18 +12,28 @@ load_dotenv()
 client = OpenAI(base_url=BASE_URL, api_key=os.environ["OPENROUTER_API_KEY"])
 system_prompt = Path("system_prompt.md").read_text()
 
-tools = {"read": run}
+def load_module(path: Path, name: str):
+    """Import a Python file as a module (importlib, no package machinery needed)."""
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+# Tool discovery: a tool is a directory under tools/ with a tool.py exporting run()
+# (the same convention as skill.py in skills/).
+tools = {}
+for tool_file in Path("tools").glob("*/tool.py"):
+    tool_name = tool_file.parent.name
+    tools[tool_name] = load_module(tool_file, f"wharness_tool_{tool_name}")
 
 # Skill discovery: a skill is a directory under skills/ with a SKILL.md prompt;
-# an optional skill.py exports run() for custom logic (same convention as tools).
-skills = {}  # skill_name -> {"prompt": str, "module": module | None}
+# an optional skill.py exports run() for custom logic.
+skills = {}
 for skill_md in Path("skills").glob("*/SKILL.md"):
     skill_dir = skill_md.parent
     skill_name = skill_dir.name
-    spec = importlib.util.spec_from_file_location(f"wharness_skill_{skill_name}", skill_dir / "skill.py")
-    skill_module = importlib.util.module_from_spec(spec) if (skill_dir / "skill.py").exists() else None
-    if skill_module is not None:
-        spec.loader.exec_module(skill_module)
+    skill_file = skill_dir / "skill.py"
+    skill_module = load_module(skill_file, f"wharness_skill_{skill_name}") if skill_file.exists() else None
     skills[skill_name] = {"prompt": skill_md.read_text(), "module": skill_module}
 
 active_skill = None
@@ -67,7 +75,7 @@ while True:
             break
 
         _, tool_name, *tool_args = reply.split()
-        result = tools[tool_name](" ".join(tool_args))
+        result = tools[tool_name].run(" ".join(tool_args))
         print(f"Tool > {tool_name} {' '.join(tool_args)}")
         print("\n".join(f"|| {line}" for line in result.splitlines()) + "\n")
         messages.append({"role": "user", "content": "[TOOL RESULT] Respond in your own words — do not repeat this content verbatim:\n" + result})
