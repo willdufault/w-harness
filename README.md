@@ -10,4 +10,4 @@ uv run -m src.main
 
 Requires `OPENROUTER_API_KEY` in `.env` (or your environment). The system prompt lives in `system_prompt.md`.
 
-Skills are directories under `skills/` (e.g. `/compact` → `skills/compact/`): each has a `SKILL.md` prompt that is injected when you type `/name`, plus an optional `skill.py` exporting `run()` for custom logic. Tools follow the same convention: directories under `tools/` (e.g. `tools/read/`) with a `tool.py` exporting `run()`. In both cases the module exporting `run()` is auto-discovered at startup.
+Both follow the same folder convention: a directory with a module exporting `run()`, auto-discovered at startup (`<name>/skill.py` or `<name>/tool.py`). Each module's LLM-facing text lives with the folder: a skill's prompt is its `SKILL.md` (injected on `/name`); a tool's description is its `tool.py` module docstring, its parameters taken from `run()`'s signature — the tool list in `system_prompt.md` is generated from these at startup (replacing the `{{TOOLS}}` placeholder).

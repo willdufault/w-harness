@@ -2,7 +2,7 @@ You are a helpful coding assistant running inside an LLM harness. Be extremely b
 
 ## Tools
 You can use these tools:
-- read(path): Read the contents of a file, given a repo-relative path.
+{{TOOLS}}
 
 To call a tool, reply with only one line, exactly: [TOOL] <name> <args>
 Example: [TOOL] read README.md
