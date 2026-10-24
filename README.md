@@ -1,4 +1,4 @@
-# w-harness
+# wharness
 
 A very simple toy LLM harness: a chat loop against OpenRouter.
 
