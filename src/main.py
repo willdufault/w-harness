@@ -38,6 +38,6 @@ while True:
 
         _, name, *args = reply.split()
         result = tool_impls[name](" ".join(args))
-        print(f"Agent < {reply}\n")
-        print(f"Tool > {result}\n")
-        messages.append({"role": "user", "content": "[TOOL RESULT]\n" + result})
+        print(f"Tool > {name} {' '.join(args)}")
+        print("\n".join(f"|| {line}" for line in result.splitlines()) + "\n")
+        messages.append({"role": "user", "content": "[TOOL RESULT] Respond in your own words — do not repeat this content verbatim:\n" + result})
