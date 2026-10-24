@@ -3,5 +3,5 @@ def run(messages, reply):
 
     Starts a new session: original system prompt plus a summary of the conversation.
     """
-    system = messages[0]
-    return [system, {"role": "user", "content": f"Summary of the previous session:\n{reply}"}]
+    system_prompt = messages[0]
+    return [system_prompt, {"role": "user", "content": f"Summary of the previous session:\n{reply}"}]
