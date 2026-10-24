@@ -1,6 +1,7 @@
 import importlib.util
 import os
 from pathlib import Path
+from types import ModuleType
 
 from dotenv import load_dotenv
 from openai import OpenAI
@@ -12,7 +13,7 @@ load_dotenv()
 client = OpenAI(base_url=BASE_URL, api_key=os.environ["OPENROUTER_API_KEY"])
 system_prompt = Path("system_prompt.md").read_text()
 
-def load_module(path: Path, name: str):
+def load_module(path: Path, name: str) -> ModuleType:
     """Import a Python file as a module (importlib, no package machinery needed)."""
     spec = importlib.util.spec_from_file_location(name, path)
     module = importlib.util.module_from_spec(spec)

@@ -1,4 +1,4 @@
-def run(messages, reply):
+def run(messages: list, reply: str) -> list:
     """Called on the final reply while this skill is active; returns the new message list.
 
     Starts a new session: original system prompt plus a summary of the conversation.
