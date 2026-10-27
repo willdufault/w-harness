@@ -4,7 +4,9 @@
 - [ ] improve base system prompt
 - [ ] use rich print? wait for tui overhaul?
 ---
-- [ ] add model toggle (hardcode)
+- [.] add model toggle (hardcode)
+  - [ ] add centralized command interface (invoke logic + retries into helper?)
+  - [ ] create common state dict that is passed around? god object antipattern
 ---
 - [x] migrate to responses api
 - [x] add try/catch for rate limit/conn error
