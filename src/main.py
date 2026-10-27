@@ -24,10 +24,10 @@ def load_module(path: Path, name: str) -> ModuleType:
 
 
 def load_tools() -> dict:
-    """Discover dirs under tools/ with a tool.py exporting run(); returns {name: module}."""
+    """Discover *.py files under tools/; description = module docstring."""
     tools = {}
-    for tool_file in Path("tools").glob("*/tool.py"):
-        tool_name = tool_file.parent.name
+    for tool_file in Path("tools").glob("*.py"):
+        tool_name = tool_file.stem
         tools[tool_name] = load_module(tool_file, f"wharness_tool_{tool_name}")
     return tools
 

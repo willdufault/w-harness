@@ -12,3 +12,4 @@
 - [x] update tool layout to match skill
 - [x] add demo skill (/compact: skills/<name>/SKILL.md + skill.py run() hook)
 - [x] migrate skills to commands (/compact: commands/compact.py, module docstring + run() hook)
+- [x] flatten tool layout (tools/read/tool.py → tools/read.py)
