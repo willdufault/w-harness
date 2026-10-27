@@ -115,7 +115,7 @@ def main():
             messages.append(
                 {
                     "role": "user",
-                    "content": "[TOOL RESULT] Respond in your own words — do not repeat this content verbatim:\n"
+                    "content": "[TOOL RESULT] Use this to answer in your own words — don't repeat it verbatim. All results you need are here; don't call this tool again with the same arguments. Answer now:\n"
                     + result,
                 }
             )
