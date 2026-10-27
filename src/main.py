@@ -13,6 +13,7 @@ MODEL = "nvidia/nemotron-3.5-lightning:free"
 BASE_URL = "https://openrouter.ai/api/v1"
 MAX_INVOKE_ATTEMPTS = 3
 INVOKE_RETRY_DELAY_SECONDS = 10
+EXIT_COMMANDS = ("exit", "quit", ":q")
 
 
 def load_module(path: Path, name: str) -> ModuleType:
@@ -75,7 +76,7 @@ def main():
             user_input = input("User > ")
         except (EOFError, KeyboardInterrupt):
             break
-        if user_input.strip() == "exit":
+        if user_input.strip() in EXIT_COMMANDS:
             break
 
         if user_input.startswith("/"):
