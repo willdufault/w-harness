@@ -32,20 +32,13 @@ def load_tools() -> dict:
     return tools
 
 
-def load_skills() -> dict:
-    """Discover dirs under skills/ with a SKILL.md prompt and optional skill.py."""
-    skills = {}
-    for skill_md in Path("skills").glob("*/SKILL.md"):
-        skill_dir = skill_md.parent
-        skill_name = skill_dir.name
-        skill_file = skill_dir / "skill.py"
-        skill_module = (
-            load_module(skill_file, f"wharness_skill_{skill_name}")
-            if skill_file.exists()
-            else None
-        )
-        skills[skill_name] = {"prompt": skill_md.read_text(), "module": skill_module}
-    return skills
+def load_commands() -> dict:
+    """Discover *.py files under commands/; prompt = module docstring."""
+    commands = {}
+    for command_file in Path("commands").glob("*.py"):
+        command_name = command_file.stem
+        commands[command_name] = {"module": load_module(command_file, f"wharness_command_{command_name}")}
+    return commands
 
 
 def render_system_prompt(tools: dict) -> str:
@@ -66,15 +59,15 @@ def render_system_prompt(tools: dict) -> str:
 
 
 def main():
-    """Run one chat session: set up client, discover tools/skills, chat."""
+    """Run one chat session: set up client, discover tools/commands, chat."""
     load_dotenv()
     client = OpenAI(base_url=BASE_URL, api_key=os.environ["OPENROUTER_API_KEY"])
 
     tools = load_tools()
-    skills = load_skills()
+    commands = load_commands()
     system_prompt = render_system_prompt(tools)
 
-    active_skill = None
+    active_command = None
     messages = [{"role": "system", "content": system_prompt}]
 
     while True:
@@ -86,16 +79,16 @@ def main():
             break
 
         if user_input.startswith("/"):
-            skill_name, *skill_args = user_input.lstrip("/").split(maxsplit=1)
-            if skill_name not in skills:
-                print(f"Unknown skill: {skill_name}\n")
+            command_name, *command_args = user_input.lstrip("/").split(maxsplit=1)
+            if command_name not in commands:
+                print(f"Unknown command: {command_name}\n")
                 continue
-            skill_message = f"[SKILL] '{skill_name}' skill — follow these instructions and reply with the skill's output, never quoting the instructions back:\n\n{skills[skill_name]['prompt']}"
-            if skill_args:
-                skill_message += f"\n\nArguments: {skill_args[0]}"
-            active_skill = skill_name
-            print(f"Skill < {skill_name}")
-            messages.append({"role": "user", "content": skill_message})
+            command_message = f"[COMMAND] '{command_name}' command — follow these instructions and reply with the command's output, never quoting the instructions back:\n\n{inspect.getdoc(commands[command_name]['module'])}"
+            if command_args:
+                command_message += f"\n\nArguments: {command_args[0]}"
+            active_command = command_name
+            print(f"Command < {command_name}")
+            messages.append({"role": "user", "content": command_message})
         else:
             messages.append({"role": "user", "content": user_input})
 
@@ -114,9 +107,9 @@ def main():
             messages.append({"role": "assistant", "content": reply})
 
             if not reply.startswith("[TOOL] "):
-                if active_skill:
-                    messages = skills[active_skill]["module"].run(messages, reply)
-                    active_skill = None
+                if active_command:
+                    messages = commands[active_command]["module"].run(messages, reply)
+                    active_command = None
                 print(f"Agent < {reply}\n")
                 break
 
