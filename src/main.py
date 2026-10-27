@@ -116,7 +116,7 @@ def main():
             _, tool_name, *tool_args = reply.split()
             result = tools[tool_name].run(" ".join(tool_args))
             print(f"Tool > {tool_name} {' '.join(tool_args)}")
-            print("\n".join(f"| {line}" for line in result.splitlines()) + "\n")
+            print("\n".join(f"| {line}" for line in result.splitlines()))
             messages.append(
                 {
                     "role": "user",
