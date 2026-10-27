@@ -103,14 +103,14 @@ def main():
             print("\nThinking...\n")
             for attempt_number in range(1, MAX_INVOKE_ATTEMPTS + 1):
                 try:
-                    response = client.chat.completions.create(model=MODEL, messages=messages)
+                    response = client.responses.create(model=MODEL, input=messages)
                     break
                 except (openai.RateLimitError, openai.APIConnectionError) as invoke_error:
                     if attempt_number == MAX_INVOKE_ATTEMPTS:
                         raise
                     print(f"Model invoke failed ({type(invoke_error).__name__}), retrying in {INVOKE_RETRY_DELAY_SECONDS}s (attempt {attempt_number}/{MAX_INVOKE_ATTEMPTS})...")
                     time.sleep(INVOKE_RETRY_DELAY_SECONDS)
-            reply = response.choices[0].message.content
+            reply = response.output_text
             messages.append({"role": "assistant", "content": reply})
 
             if not reply.startswith("[TOOL] "):
