@@ -3,8 +3,8 @@
 - [ ] add core tools (pi: read, write, edit, bash)
 - [ ] improve base system prompt
 - [ ] add model toggle (hardcode)
-- [ ] add try/catch for rate limit/conn error
 ---
+- [.] add try/catch for rate limit/conn error
 ---
 - [x] dynamic tool discovery?
 - [x] update tool layout to match skill

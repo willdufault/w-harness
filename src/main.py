@@ -1,14 +1,18 @@
 import importlib.util
 import inspect
 import os
+import time
 from pathlib import Path
 from types import ModuleType
 
+import openai
 from dotenv import load_dotenv
 from openai import OpenAI
 
 MODEL = "nvidia/nemotron-3.5-lightning:free"
 BASE_URL = "https://openrouter.ai/api/v1"
+MAX_INVOKE_ATTEMPTS = 3
+INVOKE_RETRY_DELAY_SECONDS = 10
 
 
 def load_module(path: Path, name: str) -> ModuleType:
@@ -97,7 +101,15 @@ def main():
 
         while True:
             print("\nThinking...\n")
-            response = client.chat.completions.create(model=MODEL, messages=messages)
+            for attempt_number in range(1, MAX_INVOKE_ATTEMPTS + 1):
+                try:
+                    response = client.chat.completions.create(model=MODEL, messages=messages)
+                    break
+                except (openai.RateLimitError, openai.APIConnectionError) as invoke_error:
+                    if attempt_number == MAX_INVOKE_ATTEMPTS:
+                        raise
+                    print(f"Model invoke failed ({type(invoke_error).__name__}), retrying in {INVOKE_RETRY_DELAY_SECONDS}s (attempt {attempt_number}/{MAX_INVOKE_ATTEMPTS})...")
+                    time.sleep(INVOKE_RETRY_DELAY_SECONDS)
             reply = response.choices[0].message.content
             messages.append({"role": "assistant", "content": reply})
 
