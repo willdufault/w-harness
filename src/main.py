@@ -73,7 +73,7 @@ def main():
 
     while True:
         try:
-            user_input = input("User > ")
+            user_input = input("You: ")
         except (EOFError, KeyboardInterrupt):
             break
         if user_input.strip() in EXIT_COMMANDS:
@@ -88,7 +88,7 @@ def main():
             if command_args:
                 command_message += f"\n\nArguments: {command_args[0]}"
             active_command = command_name
-            print(f"Command < {command_name}")
+            print(f"Command: {command_name}")
             messages.append({"role": "user", "content": command_message})
         else:
             messages.append({"role": "user", "content": user_input})
@@ -111,12 +111,12 @@ def main():
                 if active_command:
                     messages = commands[active_command]["module"].run(messages, reply)
                     active_command = None
-                print(f"Agent < {reply}\n")
+                print(f"Agent: {reply}\n")
                 break
 
             _, tool_name, *tool_args = reply.split()
             result = tools[tool_name].run(" ".join(tool_args))
-            print(f"Tool > {tool_name} {' '.join(tool_args)}")
+            print(f"Tool: {tool_name} {' '.join(tool_args)}")
             print("\n".join(f"| {line}" for line in result.splitlines()))
             messages.append(
                 {
